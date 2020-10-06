@@ -35,6 +35,13 @@ plugins:
   - serverless-aws-documentation
   - serverless-reqvalidator-plugin
 
+custom:
+  documentation:
+    api:
+      info:
+        version: v1.0.0
+        title: Ads API for Marketplace Application
+        description: Serverless application to setup a collaborative platform that essentially connects individuals wishing to sell or buy
 
 # you can add packaging information here
 #package:
