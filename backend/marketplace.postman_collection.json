@@ -1,0 +1,71 @@
+{
+	"info": {
+		"_postman_id": "65071dcf-74cc-4ee3-ba3e-6c1c535971be",
+		"name": "udacity-cloud-developer-capstone-marketplace",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Listing",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"title\": \"vds pc\",\n  \"description\": \"neuf windows 10...\" , \n  \"price\": 901.5\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{apiId}}.execute-api.eu-west-3.amazonaws.com/dev/listings",
+					"protocol": "https",
+					"host": [
+						"{{apiId}}",
+						"execute-api",
+						"eu-west-3",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"dev",
+						"listings"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "b384d84e-0430-473d-9adf-86c72626348f",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "7ec9f606-91b4-4a7e-9a49-5f8b3660b899",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "3e574086-2323-46fe-bfec-b1111214c2bf",
+			"key": "apiId",
+			"value": "0a7jt8xyjd"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
