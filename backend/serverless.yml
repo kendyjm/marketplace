@@ -176,3 +176,13 @@ resources:
               Action: "s3:GetObject"
               Resource: "arn:aws:s3:::${self:provider.environment.LISTINGS_IMAGES_BUCKET}/*"
         Bucket: !Ref ListingImagesBucket
+
+    RequestBodyValidator:
+      Type: AWS::ApiGateway::RequestValidator
+      Properties:
+        Name: "request-body-validator"
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ValidateRequestBody: true
+        ValidateRequestParameters: false
+
