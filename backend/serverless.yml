@@ -37,7 +37,7 @@ provider:
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
-  #- serverless-aws-documentation
+  - serverless-aws-documentation
   - serverless-reqvalidator-plugin
 
 package:
@@ -50,6 +50,10 @@ custom:
         version: v1.0.0
         title: Listing API for Marketplace Application
         description: Serverless application to setup a collaborative platform that essentially connects individuals wishing to sell or buy
+    models:
+      - name: CreateListingRequestSchema
+        contentType: application/json
+        schema: ${file(src/validation/CreateListingRequestSchema.json)}
 
 # you can add packaging information here
 #package:
@@ -61,47 +65,34 @@ custom:
 #    - exclude-me-dir/**
 
 functions:
-  hello:
-    handler: handler.hello
-#    The following are a few example events you can configure
-#    NOTE: Please make sure to change your handler code to work with those events
-#    Check the event documentation for details
-#    events:
-#      - http:
-#          path: users/create
-#          method: get
-#      - websocket: $connect
-#      - s3: ${env:BUCKET}
-#      - schedule: rate(10 minutes)
-#      - sns: greeter-topic
-#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
-#      - alexaSkill: amzn1.ask.skill.xx-xx-xx-xx
-#      - alexaSmartHome: amzn1.ask.skill.xx-xx-xx-xx
-#      - iot:
-#          sql: "SELECT * FROM 'some_topic'"
-#      - cloudwatchEvent:
-#          event:
-#            source:
-#              - "aws.ec2"
-#            detail-type:
-#              - "EC2 Instance State-change Notification"
-#            detail:
-#              state:
-#                - pending
-#      - cloudwatchLog: '/aws/lambda/hello'
-#      - cognitoUserPool:
-#          pool: MyUserPool
-#          trigger: PreSignUp
-#      - alb:
-#          listenerArn: arn:aws:elasticloadbalancing:us-east-1:XXXXXX:listener/app/my-load-balancer/50dc6c495c0c9188/
-#          priority: 1
-#          conditions:
-#            host: example.com
-#            path: /hello
-
-#    Define function environment variables here
-#    environment:
-#      variable2: value2
+  CreateListing:
+    handler: src/lambda/http/createListing.handler
+    events:
+      - http:
+          method: post
+          path: listings
+          cors: true
+          #authorizer: Auth
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: "Create a Listing"
+            description: "Create a new Listing item"
+            tags:
+              - Listing
+              - Create
+            requestModels:
+              "application/json": CreateListingRequestSchema          
+    iamRoleStatements:
+      - Effect: Allow
+        Action:  
+          - dynamodb:PutItem        
+        Resource:
+          - { "Fn::GetAtt": ["ListingTable", "Arn" ] }
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+        Resource: 
+          - '*'
 
 # you can add CloudFormation resource templates here
 resources:
@@ -165,3 +156,33 @@ resources:
               Resource: "arn:aws:s3:::${self:provider.environment.LISTINGS_IMAGES_BUCKET}/*"
         Bucket: !Ref ListingImagesBucket
 
+    RequestBodyValidator:
+      Type: AWS::ApiGateway::RequestValidator
+      Properties:
+        Name: "request-body-validator"
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ValidateRequestBody: true
+        ValidateRequestParameters: false
+
+    GatewayResponseDefault4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,DELETE,PATCH,PUT'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
+
+    GatewayResponseDefault5XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,DELETE,PATCH,PUT'"
+        ResponseType: DEFAULT_5XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
