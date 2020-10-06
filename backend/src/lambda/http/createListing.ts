@@ -14,7 +14,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const newListingRequest: CreateListingRequest = JSON.parse(event.body)
   logger.info("Processing create listing event", {newListingRequest: newListingRequest})
 
-  const user: User = undefined//getUser(event)
+  const user: User = getUser(event)
   logger.info("Adding new listing for user", {user})
 
   const newListing = await createListing(newListingRequest, user)

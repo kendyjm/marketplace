@@ -25,7 +25,7 @@ provider:
     LISTINGS_TABLE: ${self:service}s-${self:provider.stage}
     LISTINGS_INDEX_UPDATED_AT: ${self:service}s-${self:provider.stage}-index-updatedat
     LISTINGS_IMAGES_BUCKET: ${self:service}s-${self:provider.stage}-images
-    SIGNED_URL_EXPIRATION: '300'
+    SIGNED_URL_EXPIRATION: "300"
 
   tracing: # Enable X-Ray Tracing
     lambda: true
@@ -75,7 +75,7 @@ functions:
           method: post
           path: listings
           cors: true
-          #authorizer: Auth
+          authorizer: Auth
           reqValidatorName: RequestBodyValidator
           documentation:
             summary: "Create a Listing"
@@ -84,18 +84,18 @@ functions:
               - Listing
               - Create
             requestModels:
-              "application/json": CreateListingRequestSchema          
+              "application/json": CreateListingRequestSchema
     iamRoleStatements:
       - Effect: Allow
-        Action:  
-          - dynamodb:PutItem        
+        Action:
+          - dynamodb:PutItem
         Resource:
-          - { "Fn::GetAtt": ["ListingTable", "Arn" ] }
+          - { "Fn::GetAtt": ["ListingTable", "Arn"] }
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
-        Resource: 
-          - '*'
+        Resource:
+          - "*"
 
 # you can add CloudFormation resource templates here
 resources:
