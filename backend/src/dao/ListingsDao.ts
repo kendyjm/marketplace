@@ -30,4 +30,18 @@ export class ListingsDao {
         return newListing
     }    
 
+    async getListings(): Promise<Listing[]> {
+        const result = await this.docClient
+            .scan({
+                TableName: this.listingsTable
+            })
+            .promise()
+
+        logger.info("Retrieved listings", {"count" : result.Count})
+
+        const items = result.Items
+
+        return items as Listing[]
+    }
+
 }
