@@ -68,6 +68,33 @@ functions:
   Auth: # An AWS API Gateway custom RS256 authorizer function
     handler: src/lambda/auth/auth0Authorizer.handler
 
+  # TODO: Configure this function
+  GetListings:
+    handler: src/lambda/http/getListings.handler
+    events:
+      - http:
+          method: get
+          path: listings
+          cors: true
+          authorizer: Auth
+          documentation:
+            summary: "Get Listings"
+            description: "Get all the listings"
+            tags:
+              - Listing
+              - Get          
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource:
+          - { "Fn::GetAtt": ["ListingTable", "Arn"] }
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+        Resource: 
+          - '*'
+
   CreateListing:
     handler: src/lambda/http/createListing.handler
     events:
