@@ -23,8 +23,11 @@ provider:
   region: ${opt:region, 'eu-west-3'}
 
 # you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+  environment:
+    ADS_TABLE: ${self:service}-ads-${self:provider.stage}
+    ADS_INDEX_UPDATED_AT: ${self:service}-ads-index-updatedat-${self:provider.stage}
+    ADS_IMAGES_BUCKET: ${self:service.name}-ads-images-${self:provider.stage}
+    SIGNED_URL_EXPIRATION: 300    
 
 # you can add packaging information here
 #package:
