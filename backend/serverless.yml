@@ -1,52 +1,55 @@
 # Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
+# This file is the main config file for the LISTINGS service.
 # For full config options, check the docs:
 #    docs.serverless.com
-#
-# Happy Coding!
 
-service: marketplace
+service: marketplace-listing
 # app and org for use with dashboard.serverless.com
-app: marketplace-app
+app: marketplace
 org: kendyjm
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
-frameworkVersion: '2'
+frameworkVersion: "2"
 
 provider:
   name: aws
   runtime: nodejs12.x
 
-# you can overwrite defaults here
-#  stage: dev
-#  region: us-east-1
+  # you can overwrite defaults here
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'eu-west-3'}
 
-# you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
+  # you can define service wide environment variables here
+  environment:
+    LISTINGS_TABLE: ${self:service}s-${self:provider.stage}
+    LISTINGS_INDEX_UPDATED_AT: ${self:service}s-${self:provider.stage}-index-updatedat
+    LISTINGS_IMAGES_BUCKET: ${self:service}s-${self:provider.stage}-images
+    SIGNED_URL_EXPIRATION: '300'
 
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+  tracing: # Enable X-Ray Tracing
+    lambda: true
+    apiGateway: true
+
+  logs:
+    restApi: true # enable API Gateway logs
+
+plugins:
+  - serverless-webpack
+  - serverless-iam-roles-per-function
+  #- serverless-aws-documentation
+  - serverless-reqvalidator-plugin
+
+package:
+  individually: true
+
+custom:
+  documentation:
+    api:
+      info:
+        version: v1.0.0
+        title: Listing API for Marketplace Application
+        description: Serverless application to setup a collaborative platform that essentially connects individuals wishing to sell or buy
 
 # you can add packaging information here
 #package:
@@ -101,13 +104,64 @@ functions:
 #      variable2: value2
 
 # you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
+resources:
+  Resources:
+    ListingTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        KeySchema: # Primary key
+          - AttributeName: userId
+            KeyType: HASH # Partition Key
+          - AttributeName: listingId
+            KeyType: RANGE # Sort key
+        AttributeDefinitions: # An array of attributes that describe the _key schema_ for the table and indexes.
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: listingId
+            AttributeType: S
+          - AttributeName: updatedAt
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST # PROVISIONED for predictable workloads, PAY_PER_REQUEST for unpredictable
+        TableName: ${self:provider.environment.LISTINGS_TABLE}
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.LISTINGS_INDEX_UPDATED_AT}
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: updatedAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL # All of the table attributes are projected into the index.
+
+    ListingImagesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.LISTINGS_IMAGES_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - "*"
+              AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
+
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Id: ListingImagesBucketPolicy
+          Version: "2012-10-17"
+          Statement:
+            - Sid: PublicReadForGetBucketObjects
+              Effect: Allow
+              Principal: "*"
+              Action: "s3:GetObject"
+              Resource: "arn:aws:s3:::${self:provider.environment.LISTINGS_IMAGES_BUCKET}/*"
+        Bucket: !Ref ListingImagesBucket
+
