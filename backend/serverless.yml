@@ -65,6 +65,9 @@ custom:
 #    - exclude-me-dir/**
 
 functions:
+  Auth: # An AWS API Gateway custom RS256 authorizer function
+    handler: src/lambda/auth/auth0Authorizer.handler
+
   CreateListing:
     handler: src/lambda/http/createListing.handler
     events:
