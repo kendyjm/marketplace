@@ -1,5 +1,5 @@
 # Welcome to Serverless!
-# This file is the main config file for the listing service.
+# This file is the main config file for the LISTINGS service.
 # For full config options, check the docs:
 #    docs.serverless.com
 
@@ -22,9 +22,9 @@ provider:
 
   # you can define service wide environment variables here
   environment:
-    LISTING_TABLE: ${self:service}-listing-${self:provider.stage}
-    LISTING_INDEX_UPDATED_AT: ${self:service}-listing-index-updatedat-${self:provider.stage}
-    LISTING_IMAGES_BUCKET: ${self:service.name}-listing-images-${self:provider.stage}
+    LISTINGS_TABLE: ${self:service}-listings-${self:provider.stage}
+    LISTINGS_INDEX_UPDATED_AT: ${self:service}-listings-index-updatedat-${self:provider.stage}
+    LISTINGS_IMAGES_BUCKET: ${self:service.name}-listings-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
   tracing: # Enable X-Ray Tracing
@@ -134,9 +134,9 @@ resources:
           - AttributeName: updatedAt
             AttributeType: S
         BillingMode: PAY_PER_REQUEST # PROVISIONED for predictable workloads, PAY_PER_REQUEST for unpredictable
-        TableName: ${self:provider.environment.LISTING_TABLE}
+        TableName: ${self:provider.environment.LISTINGS_TABLE}
         GlobalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.LISTING_INDEX_UPDATED_AT}
+          - IndexName: ${self:provider.environment.LISTINGS_INDEX_UPDATED_AT}
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH
@@ -144,3 +144,35 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: ALL # All of the table attributes are projected into the index.
+
+    ListingImagesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.LISTINGS_IMAGES_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+                - "*"
+              AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
+
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Id: ListingImagesBucketPolicy
+          Version: "2012-10-17"
+          Statement:
+            - Sid: PublicReadForGetBucketObjects
+              Effect: Allow
+              Principal: "*"
+              Action: "s3:GetObject"
+              Resource: "arn:aws:s3:::${self:provider.environment.LISTINGS_IMAGES_BUCKET}/*"
+        Bucket: !Ref ListingImagesBucket
