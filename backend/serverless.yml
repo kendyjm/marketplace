@@ -27,6 +27,10 @@ provider:
     ADS_IMAGES_BUCKET: ${self:service.name}-ads-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300    
 
+  tracing: # Enable X-Ray Tracing
+    lambda: true
+    apiGateway: true
+    
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
@@ -35,7 +39,7 @@ plugins:
 
 package:
   individually: true
-  
+
 custom:
   documentation:
     api:
