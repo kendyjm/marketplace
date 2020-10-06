@@ -8,8 +8,6 @@ import { User } from '../auth/user'
 const logger = createLogger('listings-business')
 const listingsDao = new ListingsDao()
 
-
-
 /**
  * Create a LISTING
  * @param newListingRequest properties for this new LISTING
@@ -20,15 +18,23 @@ export async function createListing(newListingRequest: CreateListingRequest, use
     logger.info('Create LISTING with generated uuid', { listingId })
 
     const newListing: Listing = {
-        "userId" : "kendyjm" /*user.id*/,
-        "userName" : "Kendy JEAN-MARIE" /*user.fullname*/,
-        "userEmail" : "kendyjm@gmail.com" /*user.email*/,
+        "userId" : user.id,
+        "userName" : user.fullname,
+        "userEmail" : user.email,
         
         listingId,
         updatedAt: new Date().toISOString(),
         ...newListingRequest
     }
 
-
     return await listingsDao.createListing(newListing)
+}
+
+
+/**
+ * Get all the Listings
+ * @returns all the Listings
+ */
+export async function getListings(): Promise<Listing[]> {
+    return await listingsDao.getListings()
 }
