@@ -1,11 +1,11 @@
 # Welcome to Serverless!
 #
-# This file is the main config file for the marketplace service.
+# This file is the main config file for the ads service.
 #
 # For full config options, check the docs:
 #    docs.serverless.com
 
-service: marketplace
+service: ads
 # app and org for use with dashboard.serverless.com
 app: marketplace-app
 org: kendyjm
@@ -28,6 +28,13 @@ provider:
     ADS_INDEX_UPDATED_AT: ${self:service}-ads-index-updatedat-${self:provider.stage}
     ADS_IMAGES_BUCKET: ${self:service.name}-ads-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300    
+
+plugins:
+  - serverless-webpack
+  - serverless-iam-roles-per-function
+  - serverless-aws-documentation
+  - serverless-reqvalidator-plugin
+
 
 # you can add packaging information here
 #package:
