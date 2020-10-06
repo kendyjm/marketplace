@@ -1,7 +1,5 @@
 # Welcome to Serverless!
-#
 # This file is the main config file for the ads service.
-#
 # For full config options, check the docs:
 #    docs.serverless.com
 
@@ -35,6 +33,9 @@ plugins:
   - serverless-aws-documentation
   - serverless-reqvalidator-plugin
 
+package:
+  individually: true
+  
 custom:
   documentation:
     api:
