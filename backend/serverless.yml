@@ -10,27 +10,30 @@ org: kendyjm
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
-frameworkVersion: '2'
+frameworkVersion: "2"
 
 provider:
   name: aws
   runtime: nodejs12.x
 
-# you can overwrite defaults here
+  # you can overwrite defaults here
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'eu-west-3'}
 
-# you can define service wide environment variables here
+  # you can define service wide environment variables here
   environment:
     ADS_TABLE: ${self:service}-ads-${self:provider.stage}
     ADS_INDEX_UPDATED_AT: ${self:service}-ads-index-updatedat-${self:provider.stage}
     ADS_IMAGES_BUCKET: ${self:service.name}-ads-images-${self:provider.stage}
-    SIGNED_URL_EXPIRATION: 300    
+    SIGNED_URL_EXPIRATION: 300
 
   tracing: # Enable X-Ray Tracing
     lambda: true
     apiGateway: true
-    
+
+  logs:
+    restApi: true # enable API Gateway logs
+
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
