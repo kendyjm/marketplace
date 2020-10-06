@@ -3,9 +3,9 @@
 # For full config options, check the docs:
 #    docs.serverless.com
 
-service: listing
+service: marketplace-listing
 # app and org for use with dashboard.serverless.com
-app: marketplace-app
+app: marketplace
 org: kendyjm
 
 # You can pin your service to only deploy with a specific Serverless version
@@ -22,10 +22,10 @@ provider:
 
   # you can define service wide environment variables here
   environment:
-    LISTINGS_TABLE: ${self:service}-listings-${self:provider.stage}
-    LISTINGS_INDEX_UPDATED_AT: ${self:service}-listings-index-updatedat-${self:provider.stage}
-    LISTINGS_IMAGES_BUCKET: ${self:service.name}-listings-images-${self:provider.stage}
-    SIGNED_URL_EXPIRATION: 300
+    LISTINGS_TABLE: ${self:service}s-${self:provider.stage}
+    LISTINGS_INDEX_UPDATED_AT: ${self:service}s-${self:provider.stage}-index-updatedat
+    LISTINGS_IMAGES_BUCKET: ${self:service}s-${self:provider.stage}-images
+    SIGNED_URL_EXPIRATION: '300'
 
   tracing: # Enable X-Ray Tracing
     lambda: true
@@ -37,7 +37,7 @@ provider:
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
-  - serverless-aws-documentation
+  #- serverless-aws-documentation
   - serverless-reqvalidator-plugin
 
 package:
@@ -114,22 +114,10 @@ resources:
             KeyType: HASH # Partition Key
           - AttributeName: listingId
             KeyType: RANGE # Sort key
-        AttributeDefinitions:
+        AttributeDefinitions: # An array of attributes that describe the _key schema_ for the table and indexes.
           - AttributeName: userId
             AttributeType: S
           - AttributeName: listingId
-            AttributeType: S
-          - AttributeName: userName
-            AttributeType: S
-          - AttributeName: userEmail
-            AttributeType: S
-          - AttributeName: title
-            AttributeType: S
-          - AttributeName: description
-            AttributeType: S
-          - AttributeName: price
-            AttributeType: N
-          - AttributeName: attachmentUrl
             AttributeType: S
           - AttributeName: updatedAt
             AttributeType: S
@@ -177,33 +165,3 @@ resources:
               Resource: "arn:aws:s3:::${self:provider.environment.LISTINGS_IMAGES_BUCKET}/*"
         Bucket: !Ref ListingImagesBucket
 
-    RequestBodyValidator:
-      Type: AWS::ApiGateway::RequestValidator
-      Properties:
-        Name: "request-body-validator"
-        RestApiId:
-          Ref: ApiGatewayRestApi
-        ValidateRequestBody: true
-        ValidateRequestParameters: false
-
-    GatewayResponseDefault4XX:
-      Type: AWS::ApiGateway::GatewayResponse
-      Properties:
-        ResponseParameters:
-          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
-          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,DELETE,PATCH,PUT'"
-        ResponseType: DEFAULT_4XX
-        RestApiId:
-          Ref: ApiGatewayRestApi
-
-    GatewayResponseDefault5XX:
-      Type: AWS::ApiGateway::GatewayResponse
-      Properties:
-        ResponseParameters:
-          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
-          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,DELETE,PATCH,PUT'"
-        ResponseType: DEFAULT_5XX
-        RestApiId:
-          Ref: ApiGatewayRestApi
