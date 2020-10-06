@@ -1,9 +1,9 @@
 # Welcome to Serverless!
-# This file is the main config file for the ads service.
+# This file is the main config file for the listing service.
 # For full config options, check the docs:
 #    docs.serverless.com
 
-service: ads
+service: listing
 # app and org for use with dashboard.serverless.com
 app: marketplace-app
 org: kendyjm
@@ -22,9 +22,9 @@ provider:
 
   # you can define service wide environment variables here
   environment:
-    ADS_TABLE: ${self:service}-ads-${self:provider.stage}
-    ADS_INDEX_UPDATED_AT: ${self:service}-ads-index-updatedat-${self:provider.stage}
-    ADS_IMAGES_BUCKET: ${self:service.name}-ads-images-${self:provider.stage}
+    LISTING_TABLE: ${self:service}-listing-${self:provider.stage}
+    LISTING_INDEX_UPDATED_AT: ${self:service}-listing-index-updatedat-${self:provider.stage}
+    LISTING_IMAGES_BUCKET: ${self:service.name}-listing-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
   tracing: # Enable X-Ray Tracing
@@ -48,7 +48,7 @@ custom:
     api:
       info:
         version: v1.0.0
-        title: Ads API for Marketplace Application
+        title: Listing API for Marketplace Application
         description: Serverless application to setup a collaborative platform that essentially connects individuals wishing to sell or buy
 
 # you can add packaging information here
@@ -104,13 +104,43 @@ functions:
 #      variable2: value2
 
 # you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
+resources:
+  Resources:
+    ListingTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        KeySchema: # Primary key
+          - AttributeName: userId
+            KeyType: HASH # Partition Key
+          - AttributeName: listingId
+            KeyType: RANGE # Sort key
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: listingId
+            AttributeType: S
+          - AttributeName: userName
+            AttributeType: S
+          - AttributeName: userEmail
+            AttributeType: S
+          - AttributeName: title
+            AttributeType: S
+          - AttributeName: description
+            AttributeType: S
+          - AttributeName: price
+            AttributeType: N
+          - AttributeName: attachmentUrl
+            AttributeType: S
+          - AttributeName: updatedAt
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST # PROVISIONED for predictable workloads, PAY_PER_REQUEST for unpredictable
+        TableName: ${self:provider.environment.LISTING_TABLE}
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.LISTING_INDEX_UPDATED_AT}
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: updatedAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL # All of the table attributes are projected into the index.
