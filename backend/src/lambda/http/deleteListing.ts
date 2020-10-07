@@ -18,7 +18,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   }
 
   const userId = getUserId(event)
-  logger.info("Deleting todo for user", {listingId, userId})
+  logger.info("Deleting listing for user", {listingId, userId})
 
   await deleteListing(listingId, userId)
 
