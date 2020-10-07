@@ -54,6 +54,9 @@ custom:
       - name: CreateListingRequestSchema
         contentType: application/json
         schema: ${file(src/validation/CreateListingRequestSchema.json)}
+      - name: UpdateListingRequestSchema
+        contentType: application/json
+        schema: ${file(src/validation/UpdateListingRequestSchema.json)}
 
 # you can add packaging information here
 #package:
@@ -112,6 +115,7 @@ functions:
       - Effect: Allow
         Action:
           - dynamodb:Query
+        # TODO resource: use "Fn::GetAtt"
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.LISTINGS_TABLE}/index/${self:provider.environment.LISTINGS_INDEX_UPDATED_AT}
       - Effect: Allow
         Action:
@@ -172,7 +176,36 @@ functions:
         Action:
           - xray:PutTraceSegments
         Resource: 
-          - '*'    
+          - '*'  
+
+  UpdateListing:
+    handler: src/lambda/http/updateListing.handler
+    events:
+      - http:
+          method: patch
+          path: listings/{listingId}
+          authorizer: Auth
+          cors: true
+          reqValidatorName: RequestBodyValidator
+          documentation:
+            summary: "Update a Listing"
+            description: "Modify an existing Listing"
+            tags:
+              - Listing
+              - Update
+            requestModels:
+              "application/json": UpdateListingRequestSchema            
+    iamRoleStatements:
+      - Effect: Allow
+        Action:  
+          - dynamodb:UpdateItem        
+        Resource:
+          - { "Fn::GetAtt": ["ListingTable", "Arn" ] }
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+        Resource: 
+          - '*'               
 
 # you can add CloudFormation resource templates here
 resources:
