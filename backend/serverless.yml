@@ -95,6 +95,31 @@ functions:
         Resource: 
           - '*'
 
+  GetListingsUser:
+    handler: src/lambda/http/getListingsUser.handler
+    events:
+      - http:
+          method: get
+          path: listingsuser
+          cors: true
+          authorizer: Auth
+          documentation:
+            summary: "Get Listings of a User"
+            description: "Get all the listings of the authorized user"
+            tags:
+              - Listing
+              - Get          
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.LISTINGS_TABLE}/index/${self:provider.environment.LISTINGS_INDEX_UPDATED_AT}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+        Resource: 
+          - '*'
+
   CreateListing:
     handler: src/lambda/http/createListing.handler
     events:
