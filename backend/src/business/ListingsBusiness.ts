@@ -4,6 +4,7 @@ import { createLogger } from '../utils/logger'
 import { CreateListingRequest } from '../requests/CreateListingRequest'
 import * as uuid from 'uuid'
 import { User } from '../auth/user'
+import { UpdateListingRequest } from '../requests/UpdateListingRequest'
 
 const logger = createLogger('listings-business')
 const listingsDao = new ListingsDao()
@@ -48,10 +49,20 @@ export async function getListings(userId: string): Promise<Listing[]> {
 }
 
 /**
- * Remove a LISTING by its id
- * @param todoId id of the listing to delete
+ * Remove a Listing by its id
+ * @param listingId id of the listing to delete
  * @param userId id of the listing's owner
  */
-export async function deleteListing(todoId: string, userId: string) {
-    return await listingsDao.deleteListing(todoId, userId)
+export async function deleteListing(listingId: string, userId: string) {
+    return await listingsDao.deleteListing(listingId, userId)
+}
+
+/**
+ * Update a Listing by its id
+ * @param listingId id of the Listing to update
+ * @param userId id of the Listing's owner
+ * @param updatedProperties new content for this Listing
+ */
+export async function updateListing(listingId: string, userId: string, updatedProperties: UpdateListingRequest) {
+    return await listingsDao.updateListing(listingId, userId, updatedProperties)
 }
