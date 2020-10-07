@@ -30,11 +30,19 @@ export async function createListing(newListingRequest: CreateListingRequest, use
     return await listingsDao.createListing(newListing)
 }
 
-
 /**
  * Get all the Listings
  * @returns all the Listings
  */
 export async function getListings(): Promise<Listing[]> {
     return await listingsDao.getListings()
+}
+
+/**
+ * Get all the Listings of a user
+ * @param 
+ * @returns all the Listings
+ */
+export async function getListingsUser(user: User): Promise<Listing[]> {
+    return await listingsDao.getListingsUser(user)
 }
