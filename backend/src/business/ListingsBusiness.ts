@@ -43,6 +43,15 @@ export async function getListingsFull(): Promise<Listing[]> {
  * @param 
  * @returns all the Listings
  */
-export async function getListings(user: User): Promise<Listing[]> {
-    return await listingsDao.getListings(user)
+export async function getListings(userId: string): Promise<Listing[]> {
+    return await listingsDao.getListings(userId)
+}
+
+/**
+ * Remove a LISTING by its id
+ * @param todoId id of the listing to delete
+ * @param userId id of the listing's owner
+ */
+export async function deleteListing(todoId: string, userId: string) {
+    return await listingsDao.deleteListing(todoId, userId)
 }
