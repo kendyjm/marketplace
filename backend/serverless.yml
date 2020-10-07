@@ -68,13 +68,12 @@ functions:
   Auth: # An AWS API Gateway custom RS256 authorizer function
     handler: src/lambda/auth/auth0Authorizer.handler
 
-  # TODO: Configure this function
-  GetListings:
-    handler: src/lambda/http/getListings.handler
+  GetListingsFull:
+    handler: src/lambda/http/getListingsFull.handler
     events:
       - http:
           method: get
-          path: listings
+          path: listings-full
           cors: true
           authorizer: Auth
           documentation:
@@ -95,12 +94,12 @@ functions:
         Resource: 
           - '*'
 
-  GetListingsUser:
-    handler: src/lambda/http/getListingsUser.handler
+  GetListings:
+    handler: src/lambda/http/getListings.handler
     events:
       - http:
           method: get
-          path: listingsuser
+          path: listings
           cors: true
           authorizer: Auth
           documentation:

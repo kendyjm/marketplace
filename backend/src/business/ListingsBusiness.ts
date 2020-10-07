@@ -34,8 +34,8 @@ export async function createListing(newListingRequest: CreateListingRequest, use
  * Get all the Listings
  * @returns all the Listings
  */
-export async function getListings(): Promise<Listing[]> {
-    return await listingsDao.getListings()
+export async function getListingsFull(): Promise<Listing[]> {
+    return await listingsDao.getListingsFull()
 }
 
 /**
@@ -43,6 +43,6 @@ export async function getListings(): Promise<Listing[]> {
  * @param 
  * @returns all the Listings
  */
-export async function getListingsUser(user: User): Promise<Listing[]> {
-    return await listingsDao.getListingsUser(user)
+export async function getListings(user: User): Promise<Listing[]> {
+    return await listingsDao.getListings(user)
 }

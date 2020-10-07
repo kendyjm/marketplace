@@ -31,21 +31,21 @@ export class ListingsDao {
         return newListing
     }
 
-    async getListings(): Promise<Listing[]> {
+    async getListingsFull(): Promise<Listing[]> {
         const result = await this.docClient
             .scan({
                 TableName: this.listingsTable
             })
             .promise()
 
-        logger.info("Retrieved listings", { "count": result.Count })
+        logger.info("Retrieved all listings", { "count": result.Count })
 
         const items = result.Items
 
         return items as Listing[]
     }
 
-    async getListingsUser(user: User): Promise<Listing[]> {
+    async getListings(user: User): Promise<Listing[]> {
         const result = await this.docClient
             .query({
                 TableName: this.listingsTable,

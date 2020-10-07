@@ -4,6 +4,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } f
 import { createLogger } from '../../utils/logger'
 import { getUser } from '../utils'
 import { getListings } from '../../business/ListingsBusiness'
+import { User } from '../../auth/user'
 
 const logger = createLogger('getListings-function')
 
@@ -11,10 +12,10 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   logger.debug("Processing event", event)
 
   // check authorization
-  const user = getUser(event)
-  logger.info(`Get all the listings`)
+  const user: User = getUser(event)
+  logger.info("Get listings of user", user)
 
-  const items = await getListings();
+  const items = await getListings(user);
 
   return {
     statusCode: 200,

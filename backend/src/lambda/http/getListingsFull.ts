@@ -3,8 +3,7 @@ import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import { createLogger } from '../../utils/logger'
 import { getUser } from '../utils'
-import { getListingsUser } from '../../business/ListingsBusiness'
-import { User } from '../../auth/user'
+import { getListingsFull } from '../../business/ListingsBusiness'
 
 const logger = createLogger('getListings-function')
 
@@ -12,10 +11,10 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   logger.debug("Processing event", event)
 
   // check authorization
-  const user: User = getUser(event)
-  logger.info("Get listings of user", user)
+  getUser(event)
+  logger.info(`Get all the listings`)
 
-  const items = await getListingsUser(user);
+  const items = await getListingsFull();
 
   return {
     statusCode: 200,
