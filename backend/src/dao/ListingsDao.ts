@@ -1,6 +1,5 @@
 import * as AWS from 'aws-sdk'
-import { DocumentClient/*, DeleteItemOutput, UpdateItemOutput*/ } from 'aws-sdk/clients/dynamodb'
-import { User } from '../auth/user'
+import { DocumentClient, DeleteItemOutput/*, UpdateItemOutput*/ } from 'aws-sdk/clients/dynamodb'
 import { Listing } from '../models/Listing'
 import { createLogger } from '../utils/logger'
 
@@ -15,8 +14,6 @@ export class ListingsDao {
         private readonly listingsTable = process.env.LISTINGS_TABLE,
         private readonly updatedAtIndex = process.env.LISTINGS_INDEX_UPDATED_AT
     ) { }
-
-
 
     async createListing(newListing: Listing): Promise<Listing> {
         await this.docClient
@@ -45,23 +42,37 @@ export class ListingsDao {
         return items as Listing[]
     }
 
-    async getListings(user: User): Promise<Listing[]> {
+    async getListings(userId: string): Promise<Listing[]> {
         const result = await this.docClient
             .query({
                 TableName: this.listingsTable,
                 IndexName: this.updatedAtIndex,
                 KeyConditionExpression: 'userId = :userId',
                 ExpressionAttributeValues: {
-                    ':userId': user.id
+                    ':userId': userId
                 }
             })
             .promise()
 
-        logger.info("Retrieved listings", { user, "count": result.Count })
+        logger.info("Retrieved listings", { userId, "count": result.Count })
 
         const items = result.Items
 
         return items as Listing[]
     }
+
+    async deleteListing(listingId: string, userId: string) {
+        const deleteItem:DeleteItemOutput = await this.docClient
+            .delete({
+                TableName: this.listingsTable,
+                Key: {listingId, userId},
+                ReturnValues: "ALL_OLD"
+            })
+            .promise()
+
+        const deletedListing = deleteItem.Attributes
+
+        logger.info("Deleted listing", {deletedListing})    
+    }      
 
 }
