@@ -1,6 +1,7 @@
 import * as AWS from 'aws-sdk'
-import { DocumentClient, DeleteItemOutput/*, UpdateItemOutput*/ } from 'aws-sdk/clients/dynamodb'
+import { DocumentClient, DeleteItemOutput, UpdateItemOutput } from 'aws-sdk/clients/dynamodb'
 import { Listing } from '../models/Listing'
+import { UpdateListingRequest } from '../requests/UpdateListingRequest'
 import { createLogger } from '../utils/logger'
 
 const logger = createLogger('listings-dao')
@@ -73,6 +74,32 @@ export class ListingsDao {
         const deletedListing = deleteItem.Attributes
 
         logger.info("Deleted listing", {deletedListing})    
-    }      
+    }   
+    
+    async updateListing(listingId: string, userId: string, updatedProperties: UpdateListingRequest) {
+        const updateItem: UpdateItemOutput = await this.docClient
+            .update({
+                TableName: this.listingsTable,
+                Key: {listingId, userId},
+                ReturnValues: "ALL_NEW",
+                UpdateExpression:
+                  'set #title = :title, #description = :description, #price = :price',
+                ExpressionAttributeValues: {
+                  ':title': updatedProperties.title,
+                  ':description': updatedProperties.description,
+                  ':price': updatedProperties.price
+                },
+                ExpressionAttributeNames: {
+                  '#title': 'title',
+                  '#description': 'description',
+                  '#price': 'price'
+                }
+            })
+            .promise()
+
+        const updatedListing = updateItem.Attributes
+
+        logger.info("Updated listing", {updatedListing} )
+    }    
 
 }
