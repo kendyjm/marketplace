@@ -84,7 +84,7 @@ functions:
             description: "Get all the listings"
             tags:
               - Listing
-              - Get          
+              - Get
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -94,8 +94,8 @@ functions:
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
-        Resource: 
-          - '*'
+        Resource:
+          - "*"
 
   GetListings:
     handler: src/lambda/http/getListings.handler
@@ -110,7 +110,7 @@ functions:
             description: "Get all the listings of the authorized user"
             tags:
               - Listing
-              - Get          
+              - Get
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -120,8 +120,8 @@ functions:
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
-        Resource: 
-          - '*'
+        Resource:
+          - "*"
 
   CreateListing:
     handler: src/lambda/http/createListing.handler
@@ -165,18 +165,18 @@ functions:
             description: "Delete a Listing from its id"
             tags:
               - Listing
-              - Delete       
+              - Delete
     iamRoleStatements:
       - Effect: Allow
-        Action:  
-          - dynamodb:DeleteItem        
+        Action:
+          - dynamodb:DeleteItem
         Resource:
-          - { "Fn::GetAtt": ["ListingTable", "Arn" ] }
+          - { "Fn::GetAtt": ["ListingTable", "Arn"] }
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
-        Resource: 
-          - '*'  
+        Resource:
+          - "*"
 
   UpdateListing:
     handler: src/lambda/http/updateListing.handler
@@ -194,18 +194,49 @@ functions:
               - Listing
               - Update
             requestModels:
-              "application/json": UpdateListingRequestSchema            
+              "application/json": UpdateListingRequestSchema
     iamRoleStatements:
       - Effect: Allow
-        Action:  
-          - dynamodb:UpdateItem        
+        Action:
+          - dynamodb:UpdateItem
         Resource:
-          - { "Fn::GetAtt": ["ListingTable", "Arn" ] }
+          - { "Fn::GetAtt": ["ListingTable", "Arn"] }
       - Effect: Allow
         Action:
           - xray:PutTraceSegments
-        Resource: 
-          - '*'               
+        Resource:
+          - "*"
+
+  GenerateUploadUrl:
+    handler: src/lambda/http/generateUploadUrl.handler
+    events:
+      - http:
+          method: post
+          path: listings/{listingId}/attachment
+          authorizer: Auth
+          cors: true
+          documentation:
+            summary: "Signed url and attachmentUrl update"
+            description: "Generate a signed url and update/add the attachmentUrl property to the listing"
+            tags:
+              - Listing
+              - Update
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource:
+          - { "Fn::GetAtt": ["ListingTable", "Arn"] }
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:GetObject
+        Resource: arn:aws:s3:::${self:provider.environment.LISTINGS_IMAGES_BUCKET}/*
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+        Resource:
+          - "*"
 
 # you can add CloudFormation resource templates here
 resources:

@@ -5,9 +5,11 @@ import { CreateListingRequest } from '../requests/CreateListingRequest'
 import * as uuid from 'uuid'
 import { User } from '../auth/user'
 import { UpdateListingRequest } from '../requests/UpdateListingRequest'
+import { ImagesDao } from '../dao/ImagesDao'
 
 const logger = createLogger('listings-business')
 const listingsDao = new ListingsDao()
+const imagesDao = new ImagesDao()
 
 /**
  * Create a LISTING
@@ -65,4 +67,25 @@ export async function deleteListing(listingId: string, userId: string) {
  */
 export async function updateListing(listingId: string, userId: string, updatedProperties: UpdateListingRequest) {
     return await listingsDao.updateListing(listingId, userId, updatedProperties)
+}
+
+/**
+ * Get a generated signed url to put an image
+ * @param listingId id of the listing to receive an attachment
+ */
+export async function getSignedUrl(listingId: string): Promise<string> {
+    return await imagesDao.getSignedUrl(listingId)
+}
+
+/**
+ * Update a listing with an attachmentUrl (image)
+ * @param signedUrl generated signed url, from which we will retrieve the attachment url
+ * @param listingId id of the listing to receive the attachmentUrl property
+ * @param userId owner of the listing
+ */
+export async function updateAttachmentUrl(signedUrl: string, listingId: string, userId: string) {
+    // the first part of the signed url is the attachment url
+    const attachmentUrl: string = signedUrl.split("?")[0]
+    logger.info("Found the attachment url from signed url", {attachmentUrl})
+    return await listingsDao.updateAttachmentUrl(attachmentUrl, listingId, userId)
 }
