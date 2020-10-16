@@ -80,19 +80,25 @@ export class ListingsAll extends React.PureComponent<ListingsProps, ListingsStat
         {this.state.listings.map((listing, pos) => {
           return (
             <Grid.Row key={listing.listingId}>
-              <Grid.Column width={3}>
+              <Grid.Column width={2}>
                 {listing.attachmentUrl && (
                   <Image src={listing.attachmentUrl} verticalAlign="middle" />
                 )}
               </Grid.Column>
-              <Grid.Column width={7} verticalAlign="middle" floated="left">
-                {listing.title}<br></br>
+              <Grid.Column width={2} verticalAlign="middle" floated="left">
+              <strong>      {listing.title} </strong>
+            </Grid.Column>
+              <Grid.Column width={5} verticalAlign="middle" floated="left">
                 {listing.description}
               </Grid.Column>
-              <Grid.Column width={4} verticalAlign="middle" floated="left">
-                {listing.price}<br></br>
+              <Grid.Column width={1} verticalAlign="middle" floated="left">
+                {listing.price}$
+              </Grid.Column>
+              <Grid.Column width={3} verticalAlign="middle" floated="left">
                 {listing.userName}
-                {listing.userEmail}
+              </Grid.Column>
+              <Grid.Column width={3} verticalAlign="middle" floated="left">
+                <a href={"mailto:" + listing.userEmail}>{listing.userEmail}</a>
               </Grid.Column>
             </Grid.Row>
           )
