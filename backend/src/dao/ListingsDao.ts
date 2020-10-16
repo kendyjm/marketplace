@@ -100,6 +100,28 @@ export class ListingsDao {
         const updatedListing = updateItem.Attributes
 
         logger.info("Updated listing", {updatedListing} )
-    }    
+    }   
+    
+    async updateAttachmentUrl(attachmentUrl: string, listingId: string, userId: string) {
+        const updateItem: UpdateItemOutput = await this.docClient
+            .update({
+                TableName: this.listingsTable,
+                Key: {listingId, userId},
+                ReturnValues: "ALL_NEW",
+                UpdateExpression:
+                  'set #attachmentUrl = :attachmentUrl',
+                ExpressionAttributeValues: {
+                  ':attachmentUrl': attachmentUrl
+                },
+                ExpressionAttributeNames: {
+                  '#attachmentUrl': 'attachmentUrl'
+                }
+            })
+            .promise()
+
+        const updatedListing = updateItem.Attributes
+
+        logger.info("Updated attachmentUrl of listing", {updatedlisting: updatedListing} )
+    }       
 
 }
