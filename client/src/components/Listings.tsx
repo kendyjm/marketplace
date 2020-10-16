@@ -11,12 +11,15 @@ import {
   Icon,
   Input,
   Image,
-  Loader
+  Loader,
+  Form, TextArea
 } from 'semantic-ui-react'
 
 import { createListing, deleteListing, getListingsUser } from '../api/listings-api'
 import Auth from '../auth/Auth'
 import { Listing } from '../types/Listing'
+import { InputOnChangeData } from 'semantic-ui-react/dist/commonjs/elements/Input/Input'
+import { TextAreaProps } from 'semantic-ui-react/dist/commonjs/addons/TextArea/TextArea'
 
 interface ListingsProps {
   auth: Auth,
@@ -24,37 +27,40 @@ interface ListingsProps {
 }
 
 interface ListingsState {
+  loadingListings: boolean,
   listings: Listing[],
   newListingTitle: string,
-  loadingListings: boolean
+  newListingDescription: string,
+  newListingPrice: number
 }
 
 export class Listings extends React.PureComponent<ListingsProps, ListingsState> {
   state: ListingsState = {
+    loadingListings: true,
     listings: [],
     newListingTitle: '',
-    loadingListings: true
+    newListingDescription: '',
+    newListingPrice: 0,
   }
 
-  handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ newListingTitle: event.target.value })
-  }
+
 
   onEditButtonClick = (listingId: string) => {
     this.props.history.push(`/listings/${listingId}/edit`)
   }
 
-  onListingCreate = async (event: React.ChangeEvent<HTMLButtonElement>) => {
+  onListingCreate = async (event: React.FormEvent<HTMLFormElement>) => {
     try {
-      const dueDate = this.calculateDueDate()
       const newListing = await createListing(this.props.auth.getIdToken(), {
         title: this.state.newListingTitle,
-        description: 'a corriger',
-        price: 0.1
+        description: this.state.newListingDescription,
+        price: this.state.newListingPrice
       })
       this.setState({
         listings: [...this.state.listings, newListing],
-        newListingTitle: ''
+        newListingTitle: '',
+        newListingDescription: '',
+        newListingPrice: 0,
       })
     } catch {
       alert('Listing creation failed')
@@ -71,6 +77,7 @@ export class Listings extends React.PureComponent<ListingsProps, ListingsState> 
       alert('Listing deletion failed')
     }
   }
+
 
   async componentDidMount() {
     try {
@@ -97,28 +104,47 @@ export class Listings extends React.PureComponent<ListingsProps, ListingsState> 
   }
 
   renderCreateListingInput() {
+    const { newListingTitle, newListingDescription, newListingPrice } = this.state
+
+    // @ts-ignore
+    // @ts-ignore
     return (
       <Grid.Row>
         <Grid.Column width={16}>
-          <Input
-            action={{
-              color: 'teal',
-              labelPosition: 'left',
-              icon: 'add',
-              content: 'New task',
-              onClick: this.onListingCreate
-            }}
-            fluid
-            actionPosition="left"
-            placeholder="To change the world..."
-            onChange={this.handleNameChange}
-          />
+
+          <Form onSubmit={this.onListingCreate}>
+            <Form.Group>
+              <Form.Input required label='Title'  placeholder='title' width={5}
+                          name="newListingTitle" value={newListingTitle}
+                          onChange={this.handleListingTitleChange}/>
+              <TextArea required label='Description' placeholder='Describe your item(s)...' width={8}
+                        name="newListingDescription" value={newListingDescription}
+                        onChange={this.handleListingDescriptionChange}
+                />
+              <Form.Input required label='Price ($)' placeholder='price' width={3}
+                          name="newListingPrice" value={newListingPrice}
+                          onChange={this.handleListingPriceChange}
+                  />
+            </Form.Group>
+            <Form.Button content='Add Listing' />
+          </Form>
+
         </Grid.Column>
         <Grid.Column width={16}>
           <Divider />
         </Grid.Column>
       </Grid.Row>
     )
+  }
+
+  handleListingTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ newListingTitle: event.target.value })
+  }
+  handleListingPriceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ newListingPrice: +event.target.value })
+  }
+  handleListingDescriptionChange = (event: React.FormEvent<HTMLTextAreaElement>, data: TextAreaProps) => {
+    this.setState({ newListingDescription: String(data.value) })
   }
 
   renderListings() {
@@ -150,15 +176,16 @@ export class Listings extends React.PureComponent<ListingsProps, ListingsState> 
                   <Image src={listing.attachmentUrl} verticalAlign="middle" />
                 )}
               </Grid.Column>
-              <Grid.Column width={7} verticalAlign="middle" floated="left">
-                {listing.title}<br></br>
+              <Grid.Column width={4} verticalAlign="middle" floated="left">
+                <strong>   {listing.title}    </strong>
+              </Grid.Column>
+              <Grid.Column width={6} verticalAlign="middle" floated="left">
                 {listing.description}
               </Grid.Column>
-              <Grid.Column width={4} verticalAlign="middle" floated="left">
-                {listing.price}<br></br>
-                {listing.userName}
+              <Grid.Column width={1} verticalAlign="middle" floated="left">
+                {listing.price}$
               </Grid.Column>
-              <Grid.Column width={1} floated="right">
+              <Grid.Column width={1} verticalAlign="middle" floated="right">
                 <Button
                   icon
                   color="blue"
@@ -167,7 +194,7 @@ export class Listings extends React.PureComponent<ListingsProps, ListingsState> 
                   <Icon name="pencil" />
                 </Button>
               </Grid.Column>
-              <Grid.Column width={1} floated="right">
+              <Grid.Column width={1} verticalAlign="middle" floated="right">
                 <Button
                   icon
                   color="red"
@@ -183,12 +210,5 @@ export class Listings extends React.PureComponent<ListingsProps, ListingsState> 
         })}
       </Grid>
     )
-  }
-
-  calculateDueDate(): string {
-    const date = new Date()
-    date.setDate(date.getDate() + 7)
-
-    return dateFormat(date, 'yyyy-mm-dd') as string
   }
 }
