@@ -11,7 +11,8 @@ export default class Auth {
     clientID: authConfig.clientId,
     redirectUri: authConfig.callbackUrl,
     responseType: 'token id_token',
-    scope: 'openid'
+    // see https://openid.net/specs/openid-connect-basic-1_0.html#Scopes
+    scope: 'openid profile email'
   });
 
   constructor(history) {
