@@ -1,11 +1,27 @@
 # Marketplace
 
-Collaborative platform that essentially connects individuals wishing to sell or buy anything
+- [Summary](#summary)
+- [Requirements](#requirements)
+- [Getting started](#getting-started)
+  - [Installation](#installation)
+  - [Serverless Deployment (Manual)](#serverless-deployment-manual)
+  - [Serverless CD (configure online)](#serverless-cd-configure-online)
+  - [Postman collection](#postman-collection)
+  - [Client Local Start](#client-local-start)
+- [Files](#files)
+- [Contributing](#contributing)
+- [License](#license)
+- [Screenshots](#screenshots)
+  - [Result of a Serverless deployment (sls deploy -v)](#result-of-a-serverless-deployment-sls-deploy--v)
+  - [CloudFormation Stack for Serverless deployment](#cloudformation-stack-for-serverless-deployment)
+  - [X-ray service map](#x-ray-service-map)
+  - [Frontend](#frontend)
 
 ## Summary
 
 This application is my capstone project for the [Udacity Cloud Developer Nanodegree](https://www.udacity.com/course/cloud-developer-nanodegree--nd9990)
 
+Marketplace is a collaborative platform that essentially connects individuals wishing to sell or buy anything.
 As a user, you can login, add a "listing" containing a description of the item(s) you're selling, and also look at listing posted by others, like a P2P marketplace.
 
 It demonstrates
@@ -78,16 +94,6 @@ cd client
 npm start
 ```
 
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change
-
-Please make sure to update tests as appropriate
-
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
-
 ## Files
 
 - __marketplace__
@@ -104,3 +110,37 @@ Please make sure to update tests as appropriate
       - __requests__ (Typescript interfaces)
       - __utils__ (Logging module)
       - __validation__ (JSON Schema validation)
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change
+
+Please make sure to update tests as appropriate
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
+
+## Screenshots
+
+### Result of a Serverless deployment (sls deploy -v)
+
+![serverless-deployment](screenshots/serverless-deployment.png)
+
+### CloudFormation Stack for Serverless deployment
+
+![aws-cloudformation-stack](screenshots/aws-cloudformation-stack.png)
+
+### X-ray service map
+
+![aws-xray-service-map](screenshots/aws-xray-service-map.png)
+
+### Frontend
+
+![front-home](screenshots/front-home.png)
+
+![front-login-auth0](screenshots/front-login-auth0.png)
+
+![front-listings](screenshots/front-listings.png)
+
+![front-my-listings](screenshots/front-my-listings.png)
